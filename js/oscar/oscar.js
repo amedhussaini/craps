@@ -22,12 +22,14 @@ window.OscarsGrind = (function() {
 		betSize: null,
 		point: null,
 		comeOut: true,
-		comeOutRoll: null,
+		comeOutDiceRoll: null,
 			//public methods
 		rollDice: function() {
 			this.d1 = randomRoll();
 			this.d2 = randomRoll();
+			total = this.d1 + this.d2;
 
+			console.log('player rolls a ' + total);
 
 		},
 		setBankroll: function(_bankroll) {
@@ -42,15 +44,24 @@ window.OscarsGrind = (function() {
 			this.point = _point;
 		},
 		comeOutRoll: function() {
-			var d1 = randomRoll();
-			var d2 = randomRoll();
-			var roll = d1 + d2;
+			this.d1 = randomRoll();
+			this.d2 = randomRoll();
+			var roll = this.d1 + this.d2;
+			console.log('The come out roll!');
 			if (roll == 7 || roll == 11 && this.comeOut == true) {
-				this.comeOutRoll = roll;
+				this.comeOutDiceRoll = roll;
 				OscarsGrind.natural();
+				this.comeOut = true;
+				console.log('player rolls a natural!');
+
+			} else if(roll == 2 || roll == 3 || roll == 12){
+				this.bankroll -= this.betUnit * this.betSize;
+				this.comeOut = true;
+				console.log('player craps out with a ' + roll);
 			} else {
 				this.point = roll;
 				this.comeOut = false;
+				console.log('player sets point to ' + this.point);
 			}
 		},
 		natural: function() {
@@ -72,22 +83,73 @@ window.OscarsGrind = (function() {
 		 	var rendered = Mustache.render(template, {dice1: this.d1, dice2: this.d2});
 		 	$('#target').html(rendered);
 		},
+		setBankView: function() {
+
+		 	var template = $('#template2').html();
+		 	Mustache.parse(template);   // optional, speeds up future uses
+		 	var rendered = Mustache.render(template, {bankroll: this.bankroll, bankunit: this.betUnit, betsize: this.betSize });
+		 	$('#target2').html(rendered);
+
+
+		},
+		setPointView: function() {
+
+		 	var template = $('#template3').html();
+		 	Mustache.parse(template);   // optional, speeds up future uses
+		 	var rendered = Mustache.render(template, {point: this.point });
+		 	$('#target3').html(rendered);
+
+
+		},
+		checkRoll: function() {
+			var currentDice = this.d1 + this.d2;
+			if(currentDice == this.point) {
+				this.bankroll += this.betUnit * this.betSize;
+				this.comeOut = true;
+				this.point = null;
+				console.log('hit the point');
+			}
+
+			if(currentDice == 7) {
+				console.log('seven out');
+				OscarsGrind.comeOut == true;
+				this.bankroll -= this.betUnit * this.betSize;
+				this.point = null;
+				this.comeOut = true;
+			}
+		},
 		start: function() {
 
-			OscarsGrind.setBankroll(1000);
+			OscarsGrind.setBankroll(500);
 			OscarsGrind.setBetUnit(1);
 			OscarsGrind.setBetSize(10);
-			OscarsGrind.comeOutRoll();
 
-			/*
+			
 			setInterval(function(){
+				
+				if(OscarsGrind.comeOut == true)
+				{
+					//update views
+					OscarsGrind.comeOutRoll();
+					OscarsGrind.setDiceView();
+					OscarsGrind.setBankView();
+					OscarsGrind.setPointView();
+				} else {
 
-				OscarsGrind.rollDice();
-				OscarsGrind.setDiceView();
+					//update views
+					OscarsGrind.setDiceView();
+					OscarsGrind.setBankView();
+					OscarsGrind.setPointView();
+
+					OscarsGrind.rollDice();
+					OscarsGrind.checkRoll();
 
 
-			}, 2000);
-*/
+				}
+
+				
+			}, 200);
+
 		}
 
 
