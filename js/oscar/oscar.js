@@ -1,5 +1,7 @@
 window.OscarsGrind = (function() {
 
+
+
 	//private variables
 	randomRoll = function() {
 		return Math.floor(Math.random() * 6) + 1;
@@ -15,13 +17,62 @@ window.OscarsGrind = (function() {
 		point: null,
 		comeOut: true,
 		comeOutDiceRoll: null,
+		diceHistory: {
+			two: 0,
+			three: 0,
+			four: 0,
+			five: 0,
+			six: 0,
+			seven: 0,
+			eight: 0,
+			nine: 0,
+			ten: 0,
+			eleven: 0,
+			twelve: 0			
 			//public methods
+		},
 		rollDice: function() {
 			this.d1 = randomRoll();
 			this.d2 = randomRoll();
 			total = this.d1 + this.d2;
 
 			console.log('player rolls a ' + total);
+
+			switch(total) {
+				case 2:
+					this.diceHistory.two += 1;
+					break;
+				case 3:
+					this.diceHistory.three += 1;
+					break;
+				case 4:
+					this.diceHistory.four += 1;
+					break;
+				case 5:
+					this.diceHistory.five += 1;
+					break;
+				case 6:
+					this.diceHistory.six += 1;
+					break;
+				case 7:
+					this.diceHistory.seven += 1;
+					break;
+				case 8:
+					this.diceHistory.eight += 1;
+					break;
+				case 9:
+					this.diceHistory.nine += 1;
+					break;
+				case 10:
+					this.diceHistory.ten += 1;
+					break;
+				case 11:
+					this.diceHistory.eleven += 1;
+					break;
+				case 12:
+					this.diceHistory.twelve += 1;
+					break;					
+			}
 
 		},
 		setBankroll: function(_bankroll) {
@@ -36,13 +87,12 @@ window.OscarsGrind = (function() {
 			this.point = _point;
 		},
 		comeOutRoll: function() {
-			this.d1 = randomRoll();
-			this.d2 = randomRoll();
+			this.rollDice();
 			var roll = this.d1 + this.d2;
 			console.log('The come out roll!');
 			if (roll == 7 || roll == 11 && this.comeOut == true) {
 				this.comeOutDiceRoll = roll;
-				OscarsGrind.natural();
+				this.bankroll += this.betUnit * this.betSize;
 				this.comeOut = true;
 				console.log('player rolls a natural!');
 
@@ -54,11 +104,8 @@ window.OscarsGrind = (function() {
 				this.point = roll;
 				this.comeOut = false;
 				console.log('player sets point to ' + this.point);
+				OscarsGrind.updateViews();
 			}
-		},
-		natural: function() {
-			this.bankroll += this.betUnit * this.betSize;
-			this.comeOut == true;
 		},
 		getBankroll: function() {
 			console.log(this._bankroll);
@@ -110,9 +157,14 @@ window.OscarsGrind = (function() {
 				this.comeOut = true;
 			}
 		},
+		updateViews: function() {
+					OscarsGrind.setDiceView();
+					OscarsGrind.setBankView();
+					OscarsGrind.setPointView();
+		},
 		start: function() {
 
-			OscarsGrind.setBankroll(500);
+			OscarsGrind.setBankroll(200);
 			OscarsGrind.setBetUnit(1);
 			OscarsGrind.setBetSize(10);
 
@@ -122,25 +174,22 @@ window.OscarsGrind = (function() {
 				if(OscarsGrind.comeOut == true)
 				{
 					//update views
+					OscarsGrind.updateViews();
 					OscarsGrind.comeOutRoll();
-					OscarsGrind.setDiceView();
-					OscarsGrind.setBankView();
-					OscarsGrind.setPointView();
+
 				} else {
 
 					//update views
-					OscarsGrind.setDiceView();
-					OscarsGrind.setBankView();
-					OscarsGrind.setPointView();
 
 					OscarsGrind.rollDice();
+					OscarsGrind.updateViews()
 					OscarsGrind.checkRoll();
 
 
 				}
 
 				
-			}, 200);
+			}, 5000);
 
 		}
 
