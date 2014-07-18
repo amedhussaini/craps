@@ -1,5 +1,6 @@
 window.OscarsGrind = (function() {
 
+	var loop;
 
 
 	//private variables
@@ -31,12 +32,28 @@ window.OscarsGrind = (function() {
 			twelve: 0			
 			//public methods
 		},
+		lastRound: null,
+		diceRolls: 0,
+		comeOuts: 0,
+		streak: 0,
+		currentRun: null,
+		currentPointStreak: 0,
+		pointStreak: 0,
+		loop: null,
 		rollDice: function() {
+
 			this.d1 = randomRoll();
 			this.d2 = randomRoll();
+
 			total = this.d1 + this.d2;
 
-			console.log('player rolls a ' + total);
+			this.diceRolls += 1;
+
+			if (this.comeOut == false) {
+				this.currentRun += 1;
+			}
+
+			this.setMessageView('player rolls a ' + total);
 
 			switch(total) {
 				case 2:
@@ -81,62 +98,135 @@ window.OscarsGrind = (function() {
 
 		},
 		setBetSize: function(_betSize) {
+
 			this.betSize = _betSize;
 		},
 		setPoint: function(_point) {
 			this.point = _point;
 		},
 		comeOutRoll: function() {
-			this.rollDice();
-			var roll = this.d1 + this.d2;
-			console.log('The come out roll!');
-			if (roll == 7 || roll == 11 && this.comeOut == true) {
-				this.comeOutDiceRoll = roll;
-				this.bankroll += this.betUnit * this.betSize;
-				this.comeOut = true;
-				console.log('player rolls a natural!');
+			this.currentRun = 1;
+			this.bet();
 
-			} else if(roll == 2 || roll == 3 || roll == 12){
-				this.bankroll -= this.betUnit * this.betSize;
+			this.rollDice();
+
+			var roll = this.d1 + this.d2;
+			
+			this.setMessageView('The comeout roll!');
+			this.comeOuts += 1;
+			
+			if (roll == 7 || roll == 11 && this.comeOut == true) {
+
+				this.comeOutDiceRoll = roll;
+				this.win();
 				this.comeOut = true;
-				console.log('player craps out with a ' + roll);
+				this.setMessageView('Player rolls a natural.');
+				this.currentPointStreak += 1;
+
+			} else if(roll == 2 || roll == 3 || roll == 12) {
+
+				this.comeOut = true;
+				this.setMessageView('player craps out with a ' + roll);
+				this.currentPointStreak = 0;
+
 			} else {
+
 				this.point = roll;
 				this.comeOut = false;
-				console.log('player sets point to ' + this.point);
+				this.setMessageView('player sets point to ' + this.point);
 				OscarsGrind.updateViews();
 			}
 		},
+		bet: function() {
+
+			this.bankroll -= this.betUnit * this.betSize;
+			this.setBankView();
+			this.setMessageView("Player bets: " + this.betUnit * this.betSize);
+		},
+		win: function() {
+
+			this.bankroll += (this.betUnit * 2) * this.betSize;
+			this.setBankView();
+		},
 		getBankroll: function() {
+
 			console.log(this._bankroll);
 		},
 		setBetUnit: function(_betunit) {
+
 			this.betUnit = _betunit;
 		},
 		getBetUnit: function() {
+
 			console.log(this.betUnit);
 		},
 		setDiceView: function() {
-		 	var template = $('#template').html();
+
+		 	var template = $('#template-dice').html();
 		 	Mustache.parse(template);   // optional, speeds up future uses
 		 	var rendered = Mustache.render(template, {dice1: this.d1, dice2: this.d2});
-		 	$('#target').html(rendered);
+		 	$('#dice').html(rendered);
 		},
 		setBankView: function() {
 
-		 	var template = $('#template2').html();
+		 	var template = $('#template-bank').html();
 		 	Mustache.parse(template);   // optional, speeds up future uses
 		 	var rendered = Mustache.render(template, {bankroll: this.bankroll, bankunit: this.betUnit, betsize: this.betSize });
-		 	$('#target2').html(rendered);
+		 	$('#bank').html(rendered);
 
 
 		},
 		setPointView: function() {
 
-		 	var template = $('#template3').html();
+		 	var template = $('#template-point').html();
 		 	Mustache.parse(template);   // optional, speeds up future uses
 		 	var rendered = Mustache.render(template, {point: this.point });
-		 	$('#target3').html(rendered);
+		 	$('#point').html(rendered);
+
+
+		},
+		setMessageView: function(_message) {
+
+		 	var template = $('#template-messages').html();
+		 	Mustache.parse(template);   // optional, speeds up future uses
+		 	var rendered = Mustache.render(template, {message: _message });
+		 	$('#messages').html(rendered);
+
+
+		},
+		setStatsView: function() {
+
+		 	var template = $('#template-stats').html();
+		 	Mustache.parse(template);   // optional, speeds up future uses
+		 	var rendered = Mustache.render(template, { 
+		 		comeouts: this.comeOuts, 
+		 		rolls: this.diceRolls, 
+		 		currentRun: this.currentRun, 
+		 		currentPointStreak: this.currentPointStreak,
+		 		pointStreak: this.pointStreak,
+		 	});
+		 	$('#stats').html(rendered);
+
+
+		},
+		setDiceHistory: function() {
+
+		 	var template = $('#template-diceHistory').html();
+		 	Mustache.parse(template);   // optional, speeds up future uses
+		 	var rendered = Mustache.render(template, { 
+		 		two: this.diceHistory.two,
+		 		three: this.diceHistory.three,
+		 		four: this.diceHistory.four,
+		 		five: this.diceHistory.five,
+		 		six: this.diceHistory.six,
+		 		seven: this.diceHistory.seven,
+		 		eight: this.diceHistory.eight,
+		 		nine: this.diceHistory.nine,
+		 		ten: this.diceHistory.ten,
+		 		eleven: this.diceHistory.eleven,
+		 		twelve: this.diceHistory.twelve
+		 	});
+		 	$('#diceHistory').html(rendered);
 
 
 		},
@@ -146,31 +236,45 @@ window.OscarsGrind = (function() {
 				this.bankroll += this.betUnit * this.betSize;
 				this.comeOut = true;
 				this.point = null;
-				console.log('hit the point');
+				this.setMessageView('Player hits the point!');
+				this.currentPointStreak += 1;
+				if(this.currentPointStreak >= this.pointStreak) {
+					this.pointStreak = this.currentPointStreak;
+				}
 			}
 
 			if(currentDice == 7) {
-				console.log('seven out');
+				this.setMessageView('seven out');
 				OscarsGrind.comeOut == true;
 				this.bankroll -= this.betUnit * this.betSize;
 				this.point = null;
 				this.comeOut = true;
+				this.currentPointStreak = 0;
 			}
 		},
 		updateViews: function() {
 					OscarsGrind.setDiceView();
 					OscarsGrind.setBankView();
 					OscarsGrind.setPointView();
+					OscarsGrind.setDiceHistory();
+					OscarsGrind.setStatsView();
 		},
 		start: function() {
 
-			OscarsGrind.setBankroll(200);
+
+
+			OscarsGrind.setBankroll(100000);
 			OscarsGrind.setBetUnit(1);
 			OscarsGrind.setBetSize(10);
-
+			OscarsGrind.updateViews();
 			
-			setInterval(function(){
+			loop = setInterval(function(){
 				
+				if (OscarsGrind.bankroll <= 0) {
+				OscarsGrind.stop();
+				OscarsGrind.setMessageView("Bankrupt.");
+				}
+
 				if(OscarsGrind.comeOut == true)
 				{
 					//update views
@@ -189,7 +293,12 @@ window.OscarsGrind = (function() {
 				}
 
 				
-			}, 5000);
+			}, 1);
+
+		},
+		stop: function() {
+
+			clearInterval(loop);
 
 		}
 

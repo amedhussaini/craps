@@ -5,11 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Oscar's Grind</title>
     <link rel="stylesheet" href="css/foundation.css" />
+    <link rel="stylesheet" href="css/dice.css" />
     <script src="js/vendor/modernizr.js"></script>
   </head>
   <body>
    
-   <script id="template" type="x-tmpl-mustache">
+   <script id="template-dice" type="x-tmpl-mustache">
    <h3>Roll</h3>
     <ul>
       <li>Dice 1: {{ dice1 }}</li>
@@ -17,7 +18,7 @@
     </ul>
   </script>
 
-   <script id="template3" type="x-tmpl-mustache">
+   <script id="template-point" type="x-tmpl-mustache">
    <h3>Point</h3>
 <ul>
   <li> Point: {{point}}</li>
@@ -25,7 +26,7 @@
   </script>
 
 
-   <script id="template2" type="x-tmpl-mustache">
+   <script id="template-bank" type="x-tmpl-mustache">
    <h3>Bank</h3>
 <ul>
   <li> Bankroll: {{bankroll}}</li>
@@ -34,10 +35,61 @@
 </ul>
   </script>
 
+   <script id="template-diceHistory" type="x-tmpl-mustache">
+   <h3>Dice Roll History</h3>
+<ul>
+  <li> 2: {{two}} </li>
+  <li> 3: {{three}} </li>
+  <li> 4: {{four}} </li>
+  <li> 5: {{five}} </li>
+  <li> 6: {{six}} </li>
+  <li> 7: {{seven}} </li>
+  <li> 8: {{eight}} </li>
+  <li> 9: {{nine}} </li>
+  <li> 10: {{ten}} </li>
+  <li> 11: {{eleven}} </li>
+  <li> 12: {{twelve}} </li>
+</ul>
+  </script>
 
-<div id="target"></div>
-<div id="target3"></div>
-<div id="target2"></div>
+<script id="template-messages" type="x-tmpl-mustache">
+<h3>Messages</h3>
+{{message}}
+</script>
+
+<script id="template-stats" type="x-tmpl-mustache">
+<h3>Stats</h3>
+<ul>
+  <li> Dice Rolls: {{rolls}} </li>
+  <li> Comeouts: {{comeouts}} </li>
+  <li> Rolls this comeout: {{currentRun}} </li>
+  <li> Win streak: {{currentPointStreak}} </li>
+  <li> Best win streak: {{pointStreak}} </li>
+</ul>
+</script>
+
+<div class="row">
+  <div class="small-12 large-4 columns">
+    <div id="dice"></div>
+  </div>
+  <div class="small-12 large-4 columns">
+    <div id="point"></div>
+  </div>
+  <div class="small-12 large-4 columns">
+    <div id="bank"></div>
+  </div>
+</div>
+<div class="row">
+  <div class="small-12 large-4 columns">
+    <div id="diceHistory"></div>
+  </div>
+  <div class="small-12 large-4 columns">
+    <div id="stats"></div>
+  </div>
+  <div class="small-12 large-4 columns">
+    <div id="messages"></div>
+  </div>
+</div>
 
     
     <script src="js/vendor/jquery.js"></script>
